@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 class CartItem {
   final String id;
   final String productName;
-  final int quantity;
+   int quantity;
   final double price;
 
   CartItem(

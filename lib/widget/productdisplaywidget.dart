@@ -1,3 +1,4 @@
+import 'package:toast/toast.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -34,6 +35,14 @@ class ProductDisplay extends StatelessWidget {
             icon: Icon(CupertinoIcons.shopping_cart),
             color: Colors.white,
             onPressed: () {
+              Toast.show(
+                'Added to cart',
+                context,
+                gravity: Toast.BOTTOM,
+                duration: Toast.LENGTH_SHORT,
+                backgroundColor: Colors.grey,
+                textColor: Colors.black87,
+              );
               cartInfo.addItem(
                   productInfo.id, productInfo.productName, productInfo.price);
             },

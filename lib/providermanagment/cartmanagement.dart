@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import 'package:shopappstmg/models/cartitem.dart';
 
 class CartManagement extends ChangeNotifier {
@@ -6,9 +7,19 @@ class CartManagement extends ChangeNotifier {
 
   /*It will provide the Map*/
   Map<String, CartItem> get items => {..._cartItem};
+
   /*Here we are giving the length of the cartitems*/
   int get cartLength {
     return _cartItem.length;
+  }
+
+  /*Here we calculating cart value by taking every map entry*/
+  double get totalAmt {
+    double total = 0.0;
+    _cartItem.forEach((key, value) {
+      total += value.price * value.quantity;
+    });
+    return total;
   }
 
   void addItem(String productId, String productName, double price) {
@@ -24,7 +35,9 @@ class CartManagement extends ChangeNotifier {
             quantity: previouscartitem.quantity + 1),
       );
     } else {
-      /*Here we are add the key if not present*/
+      /*Here we are add the key if not present
+      * keys are p1 p2 p3 p4
+      * and id is DateTime.now()*/
       _cartItem.putIfAbsent(
         productId,
         () => CartItem(
@@ -34,6 +47,27 @@ class CartManagement extends ChangeNotifier {
             quantity: 1),
       );
     }
+    notifyListeners();
+  }
+
+  void increaseQty(String productId) {
+    var data = _cartItem[productId];
+    data.quantity+=1;
+    notifyListeners();
+  }
+  void decreaseQty(String productId){
+    var data = _cartItem[productId];
+    if(data.quantity == 1){
+      data.quantity = 1;
+    }
+    else{
+      data.quantity -=1;
+    }
+    notifyListeners();
+  }
+
+  void removeItem(String id) {
+    _cartItem.remove(id);
     notifyListeners();
   }
 }

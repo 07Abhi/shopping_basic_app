@@ -1,6 +1,7 @@
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shopappstmg/providermanagment/cartmanagement.dart';
+import 'package:shopappstmg/providermanagment/ordermanagement.dart';
 import 'package:shopappstmg/widget/cartItemwidget.dart';
 
 class CartScreen extends StatelessWidget {
@@ -30,24 +31,24 @@ class CartScreen extends StatelessWidget {
                   Spacer(),
                   Chip(
                     label: Text(
-                      'Rs. ${cartData.totalAmt}',
+                      'Rs. ${cartData.totalAmt.toStringAsFixed(2)}',
                       style: TextStyle(color: Colors.white),
                     ),
-                    backgroundColor: Theme
-                        .of(context)
-                        .primaryColor,
+                    backgroundColor: Theme.of(context).primaryColor,
                   ),
                   FlatButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      Provider.of<OrdersManagement>(context, listen: false)
+                          .addOrders(cartData.items.values.toList(),
+                              cartData.totalAmt);
+                      cartData.clearCart();
+                    },
                     child: Text(
                       'Place Order',
                       style: TextStyle(
-                          color: Theme
-                              .of(context)
-                              .primaryColor,
+                          color: Theme.of(context).primaryColor,
                           fontSize: 14.0,
-                          fontWeight: FontWeight.bold
-                      ),
+                          fontWeight: FontWeight.bold),
                     ),
                   )
                 ],
@@ -55,14 +56,19 @@ class CartScreen extends StatelessWidget {
             ),
           ),
           Expanded(
-            child: ListView.builder(itemBuilder: (context, index) {
-              return CartItemWidget(
-                  productName: cartData.items.values.toList()[index].productName,
+            child: ListView.builder(
+              itemBuilder: (context, index) {
+                return CartItemWidget(
+                  productName:
+                      cartData.items.values.toList()[index].productName,
                   productId: cartData.items.keys.toList()[index],
                   price: cartData.items.values.toList()[index].price,
                   id: cartData.items.values.toList()[index].id,
-                  quantity: cartData.items.values.toList()[index].quantity,);
-            }, itemCount: cartData.items.length,),
+                  quantity: cartData.items.values.toList()[index].quantity,
+                );
+              },
+              itemCount: cartData.items.length,
+            ),
           )
         ],
       ),

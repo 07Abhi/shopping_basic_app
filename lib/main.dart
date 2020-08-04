@@ -1,3 +1,5 @@
+import 'package:shopappstmg/providermanagment/ordermanagement.dart';
+import 'package:shopappstmg/screens/orderscreen.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providermanagment/productmanagement.dart';
@@ -19,6 +21,7 @@ class MyApp extends StatelessWidget {
         /*Create because of new instance*/
         ChangeNotifierProvider(create: (context) => ProductManagement()),
         ChangeNotifierProvider(create: (context) => CartManagement()),
+        ChangeNotifierProvider(create: (context) => OrdersManagement()),
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -32,6 +35,7 @@ class MyApp extends StatelessWidget {
           ProductDesc.id: (context) => ProductDesc(),
           ProductScreen.id: (context) => ProductScreen(),
           CartScreen.id: (context) => CartScreen(),
+          OrderScreen.id:(context)=>OrderScreen(),
         },
       ),
     );

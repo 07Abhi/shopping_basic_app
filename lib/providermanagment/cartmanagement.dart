@@ -70,4 +70,8 @@ class CartManagement extends ChangeNotifier {
     _cartItem.remove(id);
     notifyListeners();
   }
+  void clearCart(){
+    _cartItem = {};
+    notifyListeners();
+  }
 }

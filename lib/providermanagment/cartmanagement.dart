@@ -52,25 +52,57 @@ class CartManagement extends ChangeNotifier {
 
   void increaseQty(String productId) {
     var data = _cartItem[productId];
-    data.quantity+=1;
+    data.quantity += 1;
     notifyListeners();
   }
-  void decreaseQty(String productId){
+
+  void decreaseQty(String productId) {
     var data = _cartItem[productId];
-    if(data.quantity == 1){
+    if (data.quantity == 1) {
       data.quantity = 1;
-    }
-    else{
-      data.quantity -=1;
+    } else {
+      data.quantity -= 1;
     }
     notifyListeners();
   }
 
+//this will remove the whole item with quantity.
   void removeItem(String id) {
     _cartItem.remove(id);
     notifyListeners();
   }
-  void clearCart(){
+
+  //This is will decrease the quantity
+  void removeSingleQuantity(String productId) {
+    if (!_cartItem.containsKey(productId)) {
+      return;
+    }
+    if (_cartItem[productId].quantity > 1) {
+      _cartItem.update(
+        productId,
+        (value) => CartItem(
+            productName: value.productName,
+            id: value.id,
+            price: value.price,
+            quantity: value.quantity - 1),
+      );
+    } else {
+      _cartItem.remove(productId);
+    }
+    notifyListeners();
+  }
+
+  void keepItem(String proName, String proId, double price) {
+    if (!_cartItem.containsKey(proId)) {
+      _cartItem.putIfAbsent(
+          proId,
+          () => CartItem(
+              productName: proName, id: proId, price: price, quantity: 1));
+    }
+    notifyListeners();
+  }
+
+  void clearCart() {
     _cartItem = {};
     notifyListeners();
   }

@@ -35,16 +35,25 @@ class ProductDisplay extends StatelessWidget {
             icon: Icon(CupertinoIcons.shopping_cart),
             color: Colors.white,
             onPressed: () {
-              Toast.show(
-                'Added to cart',
-                context,
-                gravity: Toast.BOTTOM,
-                duration: Toast.LENGTH_SHORT,
-                backgroundColor: Colors.grey,
-                textColor: Colors.black87,
-              );
-              cartInfo.addItem(
+             cartInfo.addItem(
                   productInfo.id, productInfo.productName, productInfo.price);
+              Scaffold.of(context).hideCurrentSnackBar();
+              SnackBar snackBar = SnackBar(
+                content: Text('Item Added to Cart!!'),
+                duration: Duration(seconds: 2),
+                action: SnackBarAction(
+                  label: 'UNDO',
+                  onPressed: () {
+                    Provider.of<CartManagement>(
+                      context,
+                      listen: false,
+                    ).removeSingleQuantity(productInfo.id);
+                  },
+                  textColor: Colors.blue,
+                  disabledTextColor: Colors.red,
+                ),
+              );
+              Scaffold.of(context).showSnackBar(snackBar);
             },
           ),
           title: Text(
@@ -70,3 +79,4 @@ class ProductDisplay extends StatelessWidget {
     );
   }
 }
+/*We cannot use the keyGlobal<ScaffoldState> because scaffold is not present here*/

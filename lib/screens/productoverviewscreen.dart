@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:shopappstmg/screens/orderscreen.dart';
 import 'package:shopappstmg/providermanagment/cartmanagement.dart';
@@ -7,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:shopappstmg/widget/productwidget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:shopappstmg/widget/drawerstile.dart';
+
 enum FilterOptions {
   Favorites,
   All,
@@ -77,16 +79,25 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical:10.0),
-              child: DrawerTile(titleText:'My Orders',func: (){
-                Navigator.pop(context);
-                Navigator.pushNamed(context, OrderScreen.id);
-
-              },icon: Icons.history,),
+              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              child: DrawerTile(
+                titleText: 'My Orders',
+                func: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, OrderScreen.id);
+                },
+                icon: Icons.history,
+              ),
             ),
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 10.0),
-              child: DrawerTile(titleText:'Exit',func: (){},icon: Icons.exit_to_app,),
+              child: DrawerTile(
+                titleText: 'Exit',
+                func: () {
+                  exit(0);
+                },
+                icon: Icons.exit_to_app,
+              ),
             ),
           ],
         ),

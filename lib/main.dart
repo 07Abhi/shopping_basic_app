@@ -1,3 +1,5 @@
+import 'package:shopappstmg/screens/editingscreen.dart';
+import 'screens/productmanagescreen.dart';
 import 'package:shopappstmg/providermanagment/ordermanagement.dart';
 import 'package:shopappstmg/screens/orderscreen.dart';
 import 'package:flutter/material.dart';
@@ -35,7 +37,9 @@ class MyApp extends StatelessWidget {
           ProductDesc.id: (context) => ProductDesc(),
           ProductScreen.id: (context) => ProductScreen(),
           CartScreen.id: (context) => CartScreen(),
-          OrderScreen.id:(context)=>OrderScreen(),
+          OrderScreen.id: (context) => OrderScreen(),
+          ProductManager.id: (context) => ProductManager(),
+          EditingPage.id: (context) => EditingPage(),
         },
       ),
     );

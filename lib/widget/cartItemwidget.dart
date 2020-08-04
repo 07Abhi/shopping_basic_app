@@ -47,6 +47,7 @@ class CartItemWidget extends StatelessWidget {
                       child: Text('Keep')),
                   FlatButton(
                       onPressed: () {
+                        //it will return future<bool> true
                         Navigator.of(context).pop(true);
                       },
                       child: Text('Yes'))

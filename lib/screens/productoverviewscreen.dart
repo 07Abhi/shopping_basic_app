@@ -1,3 +1,4 @@
+import 'package:shopappstmg/screens/productmanagescreen.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:shopappstmg/screens/orderscreen.dart';
@@ -79,7 +80,8 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
               child: DrawerTile(
                 titleText: 'My Orders',
                 func: () {
@@ -90,11 +92,52 @@ class _ProductScreenState extends State<ProductScreen> {
               ),
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(vertical: 10.0),
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+              child: DrawerTile(
+                titleText: 'Product Manager',
+                func: () {
+                  Navigator.pop(context);
+                  Navigator.pushNamed(context, ProductManager.id);
+                },
+                icon: Icons.settings_applications,
+              ),
+            ),
+            Padding(
+              padding:
+                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
               child: DrawerTile(
                 titleText: 'Exit',
                 func: () {
-                  exit(0);
+                  Navigator.pop(context);
+                  showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                            title: Text('My Shop'),
+                            content: Text('Wants to exit ?'),
+                            actions: <Widget>[
+                              FlatButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop(true);
+                                },
+                                color: Theme.of(context).primaryColor,
+                                child: Text(
+                                  'No',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                              FlatButton(
+                                onPressed: () {
+                                  exit(0);
+                                },
+                                color: Theme.of(context).primaryColor,
+                                child: Text(
+                                  'yes',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                              ),
+                            ],
+                          ));
                 },
                 icon: Icons.exit_to_app,
               ),

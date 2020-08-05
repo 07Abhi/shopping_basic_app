@@ -7,7 +7,7 @@ class Product with ChangeNotifier {
   final String desc;
   final String imageUrl;
   final double price;
-  final productName;
+  final String productName;
   bool isfavorite;
 
   Product(

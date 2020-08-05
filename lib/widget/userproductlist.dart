@@ -1,4 +1,5 @@
-import 'package:shopappstmg/screens/productmanagescreen.dart';
+import 'package:shopappstmg/providermanagment/productmanagement.dart';
+import 'package:provider/provider.dart';
 import 'package:shopappstmg/screens/editingscreen.dart';
 import 'package:shopappstmg/models/productmodel.dart';
 import 'package:flutter/material.dart';
@@ -25,11 +26,17 @@ class UserProductList extends StatelessWidget {
                 Icons.mode_edit,
                 color: Colors.blue.shade700,
               ),
-              onPressed: () {}),
+              onPressed: () {
+                Navigator.of(context)
+                    .pushNamed(EditingPage.id, arguments: prod.id);
+              }),
           IconButton(
               icon: Icon(Icons.delete),
               color: Colors.red.shade500,
-              onPressed: () {}),
+              onPressed: () {
+                Provider.of<ProductManagement>(context, listen: false)
+                    .deleteItem(prod.id);
+              }),
         ],
       ),
     );

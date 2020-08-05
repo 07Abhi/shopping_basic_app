@@ -45,13 +45,45 @@ class ProductManagement with ChangeNotifier {
   List<Product> get productsList {
     return [..._productList];
   }
+
   /*This will give the favorites list*/
   List<Product> get favoritesList {
     return _productList.where((element) => element.isfavorite).toList();
   }
 
+  void addItem(Product prod) {
+    var newProduct = Product(
+      productName: prod.productName,
+      price: prod.price,
+      imageUrl: prod.imageUrl,
+      desc: prod.desc,
+      id: DateTime.now().toString(),
+    );
+    _productList.add(newProduct);
+    notifyListeners();
+  }
+
   Product getIntanceById(String Id) {
     /*Returning only the instance not list*/
     return _productList.firstWhere((element) => element.id == Id);
+  }
+
+  void updateProductData(String id, Product newProd) {
+    var index = _productList.indexWhere((element) => element.id == id);
+    if (index >= 0) {
+      _productList[index] = newProd;
+      notifyListeners();
+    } else {
+      print('No data Attached');
+    }
+  }
+
+  void deleteItem(String id) {
+    if (id != null) {
+      _productList.removeWhere((element) => element.id == id);
+      notifyListeners();
+    } else {
+      print('Enable to delete');
+    }
   }
 }

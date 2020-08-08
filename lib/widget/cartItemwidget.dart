@@ -58,19 +58,6 @@ class CartItemWidget extends StatelessWidget {
       onDismissed: (direction) {
         Provider.of<CartManagement>(context, listen: false)
             .removeItem(productId);
-//        SnackBar snackBar = SnackBar(
-//          content: Text('Item Removed'),
-//          duration: Duration(seconds: 2),
-//          action: SnackBarAction(
-//            label: 'KEEP',
-//            onPressed: () {
-//              cartData.keepItem(productName, productId, price);
-//            },
-//            textColor: Colors.blue,
-//            disabledTextColor: Colors.red,
-//          ),
-//        );
-//        Scaffold.of(context).showSnackBar(snackBar);
       },
       child: Card(
         margin: EdgeInsets.symmetric(horizontal: 15.0, vertical: 5.0),

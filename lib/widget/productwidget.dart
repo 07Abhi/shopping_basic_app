@@ -16,17 +16,17 @@ class ProductWidget extends StatelessWidget {
     * then  final data  product_data.getter of the class
     * then we use it in the builder widget*/
     final product_data = Provider.of<ProductManagement>(context);
-    final productsList =
+    final productwiseList =
         showFav ? product_data.favoritesList : product_data.productsList;
     return GridView.builder(
       padding: const EdgeInsets.all(10.0),
-      itemCount: productsList.length,
+      itemCount: productwiseList.length,
       itemBuilder: (context, index) {
         //if our class not want context.
         // if we working on already made objects.
         return ChangeNotifierProvider.value(
-          value: productsList[index],
-          child: ProductDisplay(),
+          value: productwiseList[index],
+          child: ProductDisplay(productwiseList[index]),
         );
       },
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(

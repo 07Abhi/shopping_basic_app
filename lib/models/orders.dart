@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class Orders {
   final String id;
   final double amount;
-  final DateTime dateTime;
+  final String dateTime;
   final List<CartItem> cartData;
 
   Orders({

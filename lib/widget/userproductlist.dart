@@ -16,6 +16,7 @@ class UserProductList extends StatelessWidget {
       subtitle: Text('Rs.${prod.price}'),
       leading: CircleAvatar(
         backgroundImage: NetworkImage(prod.imageUrl),
+        backgroundColor: Colors.white,
         radius: 20.0,
       ),
       trailing: Row(
@@ -33,9 +34,15 @@ class UserProductList extends StatelessWidget {
           IconButton(
               icon: Icon(Icons.delete),
               color: Colors.red.shade500,
-              onPressed: () {
-                Provider.of<ProductManagement>(context, listen: false)
-                    .deleteItem(prod.id);
+              onPressed: () async{
+                try{
+                  await Provider.of<ProductManagement>(context, listen: false)
+                      .deleteItem(prod.id);
+                }catch(e){
+                  SnackBar snackBar = SnackBar(content: Text('Unable to Request Server'),duration: Duration(seconds: 2),);
+                  Scaffold.of(context).showSnackBar(snackBar);
+                }
+
               }),
         ],
       ),

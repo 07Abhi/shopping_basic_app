@@ -13,6 +13,13 @@ class CartManagement extends ChangeNotifier {
     return _cartItem.length;
   }
 
+  bool isListempty() {
+    if (_cartItem.isEmpty) {
+      return true;
+    }
+    return false;
+  }
+
   /*Here we calculating cart value by taking every map entry*/
   double get totalAmt {
     double total = 0.0;
@@ -22,7 +29,7 @@ class CartManagement extends ChangeNotifier {
     return total;
   }
 
-  void addItem(String productId, String productName, double price) {
+  void addItem(String productId, String productName, double price) async {
     /*Here we are using Maps in built methods to carryout the work*/
     if (_cartItem.containsKey(productId)) {
       /*that item is already present in the cart we need to alter the quantity*/

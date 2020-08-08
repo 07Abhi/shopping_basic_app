@@ -1,3 +1,6 @@
+import 'package:shopappstmg/providermanagment/productmanagement.dart';
+import 'package:http/http.dart' as http;
+import 'package:connectivity/connectivity.dart';
 import 'package:shopappstmg/screens/productmanagescreen.dart';
 import 'dart:io';
 import 'package:provider/provider.dart';
@@ -24,11 +27,54 @@ class ProductScreen extends StatefulWidget {
 
 class _ProductScreenState extends State<ProductScreen> {
   bool _showFavorites = false;
+  bool init = true;
+  bool _isLoading = false;
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
+  void checkInternet() async {
+    var connectionChecker = await (Connectivity().checkConnectivity());
+    if (connectionChecker != ConnectivityResult.mobile &&
+        connectionChecker != ConnectivityResult.wifi) {
+      SnackBar snackBar = SnackBar(
+        content: Text('No Internet access....'),
+        duration: Duration(seconds: 3),
+      );
+      _scaffoldKey.currentState.showSnackBar(snackBar);
+    }
+  }
+
+/*In The initState no context related work carried out
+because may be rebuild affect the build State*/
+  @override
+  void initState() {
+    super.initState();
+    checkInternet();
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (init) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ProductManagement>(context).fetchAndSetData().then((value) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+    init = false;
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
-    //final cartData = Provider.of<CartManagement>(context, listen: false);
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Product List'),
         actions: <Widget>[
@@ -50,17 +96,20 @@ class _ProductScreenState extends State<ProductScreen> {
               setState(() {
                 if (val == FilterOptions.Favorites) {
                   _showFavorites = true;
-                } else {
+                } else if (val == FilterOptions.All) {
                   _showFavorites = false;
                 }
               });
             },
             itemBuilder: (_) => [
               PopupMenuItem(
-                  child: Text('Your Favorites'),
-                  value: FilterOptions.Favorites),
+                child: Text('Your Favorites'),
+                value: FilterOptions.Favorites,
+              ),
               PopupMenuItem(
-                  child: Text('All Products'), value: FilterOptions.All),
+                child: Text('All Products'),
+                value: FilterOptions.All,
+              ),
             ],
           )
         ],
@@ -145,7 +194,11 @@ class _ProductScreenState extends State<ProductScreen> {
           ],
         ),
       ),
-      body: ProductWidget(showFav: _showFavorites),
+      body: _isLoading
+          ? Center(
+              child: CircularProgressIndicator(),
+            )
+          : ProductWidget(showFav: _showFavorites),
     );
   }
 }

@@ -1,44 +1,13 @@
-import 'dart:collection';
-
+import 'package:shopappstmg/models/http_exceptions.dart';
+import 'dart:convert' as json;
+import 'package:http/http.dart' as http;
 import 'package:shopappstmg/models/productmodel.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
+
+const url = 'https://shopapp-71278.firebaseio.com/products_data.json';
 
 class ProductManagement with ChangeNotifier {
-  List<Product> _productList = [
-    Product(
-      id: 'p1',
-      productName: 'Red Shirt',
-      desc: 'A red shirt - it is pretty red!',
-      price: 29.99,
-      imageUrl:
-          'https://cdn.pixabay.com/photo/2016/10/02/22/17/red-t-shirt-1710578_1280.jpg',
-    ),
-    Product(
-      id: 'p2',
-      productName: 'Trousers',
-      desc: 'A nice pair of trousers.',
-      price: 59.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/e/e8/Trousers%2C_dress_%28AM_1960.022-8%29.jpg/512px-Trousers%2C_dress_%28AM_1960.022-8%29.jpg',
-    ),
-    Product(
-      id: 'p3',
-      productName: 'Yellow Scarf',
-      desc: 'Warm and cozy - exactly what you need for the winter.',
-      price: 19.99,
-      imageUrl:
-          'https://live.staticflickr.com/4043/4438260868_cc79b3369d_z.jpg',
-    ),
-    Product(
-      id: 'p4',
-      productName: 'A Pan',
-      desc: 'Prepare any meal you want.',
-      price: 49.99,
-      imageUrl:
-          'https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Cast-Iron-Pan.jpg/1024px-Cast-Iron-Pan.jpg',
-    ),
-  ];
+  List<Product> _productList = [];
 
   //UnmodifiableListView<Product> get  productlist => UnmodifiableListView(_productList);
   /*This will give the product list*/
@@ -51,16 +20,62 @@ class ProductManagement with ChangeNotifier {
     return _productList.where((element) => element.isfavorite).toList();
   }
 
-  void addItem(Product prod) {
-    var newProduct = Product(
-      productName: prod.productName,
-      price: prod.price,
-      imageUrl: prod.imageUrl,
-      desc: prod.desc,
-      id: DateTime.now().toString(),
+  Future<void> fetchAndSetData() async {
+    try {
+      http.Response response = await http.get(url);
+      var extractedData =
+          json.jsonDecode(response.body) as Map<String, dynamic>;
+      final List<Product> prodList = [];
+      if (extractedData != null) {
+        extractedData.forEach((prodId, value) {
+          prodList.add(
+            Product(
+              id: prodId,
+              productName: value['productName'],
+              price: value['price'],
+              imageUrl: value['imageUrl'],
+              isfavorite: value['isFavorite'],
+              desc: value['desc'],
+            ),
+          );
+        });
+        _productList = prodList;
+        notifyListeners();
+      }
+    } catch (error) {
+      throw (error);
+    }
+  }
+
+  Future<bool> addItem(Product prod) async {
+    http.Response response = await http.post(
+      url,
+      body: json.jsonEncode(
+        {
+          'productName': prod.productName,
+          'price': prod.price,
+          'desc': prod.desc,
+          'imageUrl': prod.imageUrl,
+          'isFavorite': prod.isfavorite
+        },
+      ),
     );
-    _productList.add(newProduct);
-    notifyListeners();
+    if (response.statusCode == 200) {
+      var jsonData = json.jsonDecode(response.body);
+      var newProduct = Product(
+        productName: prod.productName,
+        price: prod.price,
+        imageUrl: prod.imageUrl,
+        desc: prod.desc,
+        id: jsonData['name'],
+      );
+      _productList.add(newProduct);
+      notifyListeners();
+      return true;
+    } else {
+      print('Problem in Request');
+      return false;
+    }
   }
 
   Product getIntanceById(String Id) {
@@ -68,7 +83,17 @@ class ProductManagement with ChangeNotifier {
     return _productList.firstWhere((element) => element.id == Id);
   }
 
-  void updateProductData(String id, Product newProd) {
+  Future<void> updateProductData(String id, Product newProd) async {
+    final updateUrl =
+        'https://shopapp-71278.firebaseio.com/products_data/$id.json';
+    http.patch(updateUrl,
+        body: json.jsonEncode({
+          'desc': newProd.desc,
+          'imageUrl': newProd.imageUrl,
+          'isFavorite': newProd.isfavorite,
+          'price': newProd.price,
+          'productName': newProd.productName,
+        }));
     var index = _productList.indexWhere((element) => element.id == id);
     if (index >= 0) {
       _productList[index] = newProd;
@@ -78,12 +103,24 @@ class ProductManagement with ChangeNotifier {
     }
   }
 
-  void deleteItem(String id) {
+  void deleteItem(String id) async {
+    //here we use the concept of optimizing deletion.
+    final updateUrl =
+        'https://shopapp-71278.firebaseio.com/products_data/$id.json';
+    var index = _productList.indexWhere((element) => element.id == id);
+    var productItem = _productList[index];
     if (id != null) {
-      _productList.removeWhere((element) => element.id == id);
+      _productList.removeAt(index);
+      //If the data is not deleted from the request then we re added it to the list again.
+      http.Response response = await http.delete(updateUrl);
+      //now if the request is successful then we make that to null Dart clear the clutter.
+      if (response.statusCode > 400) {
+        _productList.insert(index, productItem);
+        notifyListeners();
+        throw HttpException('Could not resolve the error');
+      }
+      productItem = null;
       notifyListeners();
-    } else {
-      print('Enable to delete');
     }
   }
 }

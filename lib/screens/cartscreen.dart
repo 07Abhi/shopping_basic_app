@@ -57,10 +57,10 @@ class _CartScreenState extends State<CartScreen> {
                             setState(() {
                               isLoading = true;
                             });
-                            await Provider.of<OrdersManagement>(context, listen: false)
+                            await Provider.of<OrdersManagement>(context,
+                                    listen: false)
                                 .addOrders(cartData.items.values.toList(),
                                     cartData.totalAmt);
-                            print('data sent successfully');
                             cartData.clearCart();
                           } catch (e) {
                             SnackBar snackBar = SnackBar(

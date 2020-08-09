@@ -1,5 +1,4 @@
-import 'package:shopappstmg/providermanagment/productmanagement.dart';
-import 'package:toast/toast.dart';
+import 'package:shopappstmg/providermanagment/authmanagement.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,7 +16,9 @@ class ProductDisplay extends StatelessWidget {
   Widget build(BuildContext context) {
     final productInfo = Provider.of<Product>(context);
     final cartInfo = Provider.of<CartManagement>(context);
+    final authData = Provider.of<AuthManager>(context);
     favStatus = productInfo.isfavorite;
+    print(favStatus);
     return GridTile(
       child: GestureDetector(
         onTap: () {
@@ -69,11 +70,12 @@ class ProductDisplay extends StatelessWidget {
         leading: IconButton(
           icon: Icon(
             Icons.favorite,
-            color: favStatus ? Colors.red : Colors.white70,
+            color: favStatus??false ? Colors.red : Colors.white70,
           ),
           color: Colors.white70,
           onPressed: () {
-            Provider.of<Product>(context, listen: false).togglefav();
+            Provider.of<Product>(context, listen: false)
+                .togglefav(authData.tokenData, authData.userid);
           },
         ),
       ),

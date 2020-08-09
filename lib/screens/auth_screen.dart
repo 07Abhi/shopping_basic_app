@@ -1,11 +1,14 @@
+import 'package:flutter/services.dart';
+import 'package:shopappstmg/models/http_exceptions.dart';
+import 'package:shopappstmg/providermanagment/authmanagement.dart';
 import 'dart:math';
-
+import 'package:provider/provider.dart';
 import 'package:flutter/material.dart';
 
 enum AuthMode { Signup, Login }
 
 class AuthScreen extends StatelessWidget {
-  static const routeName = '/auth';
+  static final String id = '/auth';
 
   @override
   Widget build(BuildContext context) {
@@ -41,7 +44,7 @@ class AuthScreen extends StatelessWidget {
                     child: Container(
                       margin: EdgeInsets.only(bottom: 20.0),
                       padding:
-                      EdgeInsets.symmetric(vertical: 8.0, horizontal: 94.0),
+                          EdgeInsets.symmetric(vertical: 8.0, horizontal: 94.0),
                       transform: Matrix4.rotationZ(-8 * pi / 180)
                         ..translate(-10.0),
                       // ..translate(-10.0),
@@ -97,23 +100,77 @@ class _AuthCardState extends State<AuthCard> {
     'email': '',
     'password': '',
   };
+
+  void _showErrorDialog(String errMsg) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(
+          'An Error is Occurred!',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(
+          errMsg,
+          style: TextStyle(color: Colors.redAccent),
+        ),
+        actions: <Widget>[
+          FlatButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: Text(
+              'Ok',
+              style: TextStyle(color: Colors.white),
+            ),
+            color: Theme.of(context).primaryColor,
+          ),
+        ],
+      ),
+    );
+  }
+
   bool _isLoading = false;
   final _passwordController = TextEditingController();
 
-  void _submit() {
+  Future _submit() async {
     if (!_formKey.currentState.validate()) {
       // Invalid!
       return;
     }
+    SystemChannels.textInput.invokeMethod('TextInput.hide');
     _formKey.currentState.save();
     setState(() {
       _isLoading = true;
     });
-    if (_authMode == AuthMode.Login) {
-      // Log user in
-    } else {
-      // Sign user up
+    try {
+      if (_authMode == AuthMode.Login) {
+        await Provider.of<AuthManager>(context, listen: false)
+            .signInUser(_authData['email'], _authData['password']);
+        // Log user in
+      } else {
+        // Sign user up
+        await Provider.of<AuthManager>(context, listen: false)
+            .signUpUser(_authData['email'], _authData['password']);
+      }
+    } on HttpException catch (error) {
+      var errorMessage = 'Authentication failed';
+      if (error.toString().contains('EMAIL_EXISTS')) {
+        errorMessage = 'This email address is already in use.';
+      } else if (error.toString().contains('INVALID_EMAIL')) {
+        errorMessage = 'This is not a valid email address';
+      } else if (error.toString().contains('WEAK_PASSWORD')) {
+        errorMessage = 'This password is too weak.';
+      } else if (error.toString().contains('EMAIL_NOT_FOUND')) {
+        errorMessage = 'Could not find a user with that email.';
+      } else if (error.toString().contains('INVALID_PASSWORD')) {
+        errorMessage = 'Invalid password.';
+      }
+      _showErrorDialog(errorMessage);
+    } catch (e) {
+      const _errormsg = 'Unable to login you try after sometime!!';
+      _showErrorDialog(_errormsg);
     }
+
     setState(() {
       _isLoading = false;
     });
@@ -142,7 +199,7 @@ class _AuthCardState extends State<AuthCard> {
       child: Container(
         height: _authMode == AuthMode.Signup ? 320 : 260,
         constraints:
-        BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
+            BoxConstraints(minHeight: _authMode == AuthMode.Signup ? 320 : 260),
         width: deviceSize.width * 0.75,
         padding: EdgeInsets.all(16.0),
         child: Form(
@@ -157,6 +214,7 @@ class _AuthCardState extends State<AuthCard> {
                     if (value.isEmpty || !value.contains('@')) {
                       return 'Invalid email!';
                     }
+                    return null;
                   },
                   onSaved: (value) {
                     _authData['email'] = value;
@@ -170,6 +228,7 @@ class _AuthCardState extends State<AuthCard> {
                     if (value.isEmpty || value.length < 5) {
                       return 'Password is too short!';
                     }
+                    return null;
                   },
                   onSaved: (value) {
                     _authData['password'] = value;
@@ -182,10 +241,11 @@ class _AuthCardState extends State<AuthCard> {
                     obscureText: true,
                     validator: _authMode == AuthMode.Signup
                         ? (value) {
-                      if (value != _passwordController.text) {
-                        return 'Passwords do not match!';
-                      }
-                    }
+                            if (value != _passwordController.text) {
+                              return 'Passwords do not match!';
+                            }
+                            return null;
+                          }
                         : null,
                   ),
                 SizedBox(
@@ -196,13 +256,13 @@ class _AuthCardState extends State<AuthCard> {
                 else
                   RaisedButton(
                     child:
-                    Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
+                        Text(_authMode == AuthMode.Login ? 'LOGIN' : 'SIGN UP'),
                     onPressed: _submit,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(30),
                     ),
                     padding:
-                    EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
+                        EdgeInsets.symmetric(horizontal: 30.0, vertical: 8.0),
                     color: Theme.of(context).primaryColor,
                     textColor: Theme.of(context).primaryTextTheme.button.color,
                   ),

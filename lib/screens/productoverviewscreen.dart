@@ -1,8 +1,8 @@
+import 'package:shopappstmg/providermanagment/authmanagement.dart';
 import 'package:shopappstmg/providermanagment/productmanagement.dart';
-import 'package:http/http.dart' as http;
+import 'package:toast/toast.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:shopappstmg/screens/productmanagescreen.dart';
-import 'dart:io';
 import 'package:provider/provider.dart';
 import 'package:shopappstmg/screens/orderscreen.dart';
 import 'package:shopappstmg/providermanagment/cartmanagement.dart';
@@ -130,7 +130,7 @@ because may be rebuild affect the build State*/
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
               child: DrawerTile(
                 titleText: 'My Orders',
                 func: () {
@@ -142,7 +142,7 @@ because may be rebuild affect the build State*/
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
               child: DrawerTile(
                 titleText: 'Product Manager',
                 func: () {
@@ -154,16 +154,19 @@ because may be rebuild affect the build State*/
             ),
             Padding(
               padding:
-                  const EdgeInsets.symmetric(vertical: 10.0, horizontal: 10.0),
+                  const EdgeInsets.symmetric(vertical: 12.0, horizontal: 10.0),
               child: DrawerTile(
-                titleText: 'Exit',
+                titleText: 'Logout',
                 func: () {
                   Navigator.pop(context);
                   showDialog(
                       context: context,
                       builder: (context) => AlertDialog(
-                            title: Text('My Shop'),
-                            content: Text('Wants to exit ?'),
+                            title: Text(
+                              'My Shop',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                            content: Text('Want to logout?'),
                             actions: <Widget>[
                               FlatButton(
                                 onPressed: () {
@@ -177,7 +180,18 @@ because may be rebuild affect the build State*/
                               ),
                               FlatButton(
                                 onPressed: () {
-                                  exit(0);
+                                  Navigator.of(context).pop();
+                                  Provider.of<AuthManager>(context,
+                                          listen: false)
+                                      .userLogout();
+                                  Toast.show(
+                                    'Logout Succesfully',
+                                    context,
+                                    duration: Toast.LENGTH_LONG,
+                                    gravity: Toast.BOTTOM,
+                                    backgroundColor: Colors.black87,
+                                    textColor: Colors.white70,
+                                  );
                                 },
                                 color: Theme.of(context).primaryColor,
                                 child: Text(

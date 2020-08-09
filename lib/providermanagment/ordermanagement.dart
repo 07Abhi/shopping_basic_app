@@ -6,10 +6,12 @@ import 'package:flutter/material.dart';
 import 'package:shopappstmg/models/orders.dart';
 import 'package:shopappstmg/models/cartitem.dart';
 
-final String url = 'https://shopapp-71278.firebaseio.com/orderdata.json';
-
 class OrdersManagement extends ChangeNotifier {
+  String authKey;
   List<Orders> _ordersData = [];
+  String userId;
+
+  OrdersManagement(this.authKey, this._ordersData, this.userId);
 
   List<Orders> get orders {
     return [..._ordersData];
@@ -18,10 +20,13 @@ class OrdersManagement extends ChangeNotifier {
   void addOrders(List<CartItem> cartsData, double total) async {
     var timeOfOrder = DateFormat('dd/MM/yyyy hh:mm a E').format(DateTime.now());
     var timeStamp = DateTime.now();
+    final String url =
+        'https://shopapp-71278.firebaseio.com/orderdata.json?auth=$authKey';
     http.Response response = await http.post(url,
         body: json.jsonEncode({
           'orderDate': timeOfOrder,
           'totalAmount': total,
+          'userId': userId,
           //this will convert the list to map item list.
           'cartitems': cartsData
               .map((e) => {
@@ -47,6 +52,9 @@ class OrdersManagement extends ChangeNotifier {
   }
 
   Future<void> fetchAndSetData() async {
+    final String url =
+        'https://shopapp-71278.firebaseio.com/orderdata.json?auth=$authKey&orderBy=\"userId\"&equalTo=\"$userId\"';
+    print(url);
     http.Response response = await http.get(url);
     print(json.jsonDecode(response.body));
     List<Orders> helperList = [];

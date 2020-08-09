@@ -4,10 +4,12 @@ import 'package:http/http.dart' as http;
 import 'package:shopappstmg/models/productmodel.dart';
 import 'package:flutter/material.dart';
 
-const url = 'https://shopapp-71278.firebaseio.com/products_data.json';
-
 class ProductManagement with ChangeNotifier {
+  String authkey;
   List<Product> _productList = [];
+  String userId;
+
+  ProductManagement(this.authkey, this._productList, this.userId);
 
   //UnmodifiableListView<Product> get  productlist => UnmodifiableListView(_productList);
   /*This will give the product list*/
@@ -21,33 +23,45 @@ class ProductManagement with ChangeNotifier {
   }
 
   Future<void> fetchAndSetData() async {
+    var url =
+        'https://shopapp-71278.firebaseio.com/products_data.json?auth=$authkey&orderBy=\"creatorId\"&equalTo=\"$userId\"';
     try {
       http.Response response = await http.get(url);
       var extractedData =
           json.jsonDecode(response.body) as Map<String, dynamic>;
       final List<Product> prodList = [];
-      if (extractedData != null) {
-        extractedData.forEach((prodId, value) {
-          prodList.add(
-            Product(
-              id: prodId,
-              productName: value['productName'],
-              price: value['price'],
-              imageUrl: value['imageUrl'],
-              isfavorite: value['isFavorite'],
-              desc: value['desc'],
-            ),
-          );
-        });
-        _productList = prodList;
-        notifyListeners();
+      if (extractedData == null) {
+        return null;
       }
+      url =
+          'https://shopapp-71278.firebaseio.com/userfav_data/$userId.json?auth=$authkey';
+      final favoritesData = await http.get(url);
+      final favresponse = json.jsonDecode(favoritesData.body);
+      print(favresponse);
+      extractedData.forEach((prodId, value) {
+        prodList.add(
+          Product(
+            id: prodId,
+            productName: value['productName'],
+            price: value['price'],
+            isfavorite:
+                favresponse == null ? false : favresponse[prodId] ?? false,
+            imageUrl: value['imageUrl'],
+            desc: value['desc'],
+          ),
+        );
+      });
+      _productList = prodList;
+      notifyListeners();
     } catch (error) {
       throw (error);
+//      print(error);
     }
   }
 
   Future<bool> addItem(Product prod) async {
+    final url =
+        'https://shopapp-71278.firebaseio.com/products_data.json?auth=$authkey';
     http.Response response = await http.post(
       url,
       body: json.jsonEncode(
@@ -56,7 +70,7 @@ class ProductManagement with ChangeNotifier {
           'price': prod.price,
           'desc': prod.desc,
           'imageUrl': prod.imageUrl,
-          'isFavorite': prod.isfavorite
+          'creatorId': userId,
         },
       ),
     );
@@ -85,7 +99,7 @@ class ProductManagement with ChangeNotifier {
 
   Future<void> updateProductData(String id, Product newProd) async {
     final updateUrl =
-        'https://shopapp-71278.firebaseio.com/products_data/$id.json';
+        'https://shopapp-71278.firebaseio.com/products_data/$id.json?auth=$authkey';
     http.patch(updateUrl,
         body: json.jsonEncode({
           'desc': newProd.desc,
@@ -106,7 +120,7 @@ class ProductManagement with ChangeNotifier {
   void deleteItem(String id) async {
     //here we use the concept of optimizing deletion.
     final updateUrl =
-        'https://shopapp-71278.firebaseio.com/products_data/$id.json';
+        'https://shopapp-71278.firebaseio.com/products_data/$id.json?auth=$authkey';
     var index = _productList.indexWhere((element) => element.id == id);
     var productItem = _productList[index];
     if (id != null) {
